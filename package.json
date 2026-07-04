@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "compile": "node scripts/compile.mjs",
-    "deploy": "node scripts/deploy.mjs"
+    "deploy": "node scripts/deploy.mjs",
+    "proxy": "node local/trust-proxy.mjs"
   },
   "dependencies": {
     "next": "15.1.6",

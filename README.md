@@ -50,6 +50,29 @@ npm run deploy         # deploys to Monad testnet, writes NEXT_PUBLIC_CONTRACT_A
 npm run dev            # verdicts now written to Monad; UI shows the tx + reputation
 ```
 
+## Local trust proxy (solve the transit-station swap from your laptop)
+
+A drop-in, laptop-local defense: point any OpenAI-compatible tool's base URL at
+a localhost proxy that verifies every upstream (real model? + on-chain
+reputation) *before* trusting it, and blocks model substitution.
+
+```bash
+# guard a real endpoint you route through
+TRUST_UPSTREAM_BASE=http://localhost:4000/v1 \
+TRUST_UPSTREAM_KEY=sk-... \
+TRUST_EXPECT_MODEL=claude-opus-4.8 \
+npm run proxy
+# then: export OPENAI_BASE_URL=http://localhost:8787/v1
+```
+
+- Honest upstream → served, `X-Trust: ok`.
+- Upstream secretly serving a cheaper model → **HTTP 403, blocked** ("substitution
+  detected") before your request leaves the machine. (`TRUST_MODE=warn` to allow+flag.)
+
+Scope note: this fully defeats the **model-swap** half of the transit-station
+problem locally. The **token-theft** half (worms on the same machine) needs the
+credential held off the compromised box — that's the `PrepaidGateway`.
+
 ## Live deployment (Monad Testnet · chainId 10143)
 
 | Contract | Address |
