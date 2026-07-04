@@ -50,6 +50,16 @@ npm run deploy         # deploys to Monad testnet, writes NEXT_PUBLIC_CONTRACT_A
 npm run dev            # verdicts now written to Monad; UI shows the tx + reputation
 ```
 
+## Live deployment (Monad Testnet · chainId 10143)
+
+| Contract | Address |
+|---|---|
+| `AttestationRegistry` (authenticity oracle) | [`0x21f082a0b2343326108261cf918001565a0a1d92`](https://testnet.monadexplorer.com/address/0x21f082a0b2343326108261cf918001565a0a1d92) |
+| `PrepaidGateway` (secure metered access) | [`0x7ed90eb920d1345f48d65a8623bb4a8d6b73a6ec`](https://testnet.monadexplorer.com/address/0x7ed90eb920d1345f48d65a8623bb4a8d6b73a6ec) |
+
+- Authenticity oracle at `/` · Secure gateway at `/gateway`
+- Verified live against a real LiteLLM proxy fronting Anthropic / Azure-OpenAI / Moonshot.
+
 ## Monad Testnet
 
 - RPC: `https://testnet-rpc.monad.xyz` · Chain ID: `10143` · Symbol: `MON`
