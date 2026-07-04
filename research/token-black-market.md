@@ -2,6 +2,7 @@
 
 > Working notes compiled to understand the problem before building a solution.
 > Compiled 2026-07-04. Trigger: ThePrimeagen video "The Secret Token Underworld" (`youtu.be/5paRa6E5rCM`) + its 6 cited sources.
+> Full video transcript pulled 2026-07-04 (scratchpad `transcript_clean.txt`); key additions in §11.
 
 ---
 
@@ -147,3 +148,31 @@ Framing the problem as several distinct sub-problems a product could attack:
 5. **Anthropic** — "Detecting and Preventing Distillation Attacks" — `anthropic.com/news/detecting-and-preventing-distillation-attacks`.
 6. **404 Media** — "Inside the underground site where AI churns out fake IDs (OnlyFake)."
 7. **Video** — ThePrimeagen (The PrimeTime), "The Secret Token Underworld", `youtu.be/5paRa6E5rCM`. Chapters: Distillation attacks (2:38) / How to Buy & Sell (3:21) / Why so cheap (8:27) / His theory (11:11).
+
+---
+
+## 11. Video synthesis (ThePrimeagen transcript) + the theft angle
+
+Beyond the sources above, the video adds framing and one new vector that shaped the solution:
+
+- **"Transit stations" (中转站) are the atomic unit** — functionally a VPN/OpenRouter, but illegal + fraudulent. The system is *modular and amorphous*: kill one SMS/ID/proxy supplier and the station keeps running → practically impossible to take down at the supply layer.
+- **Users are mostly doing real work** (coding, apps, scams), NOT running distillation themselves. Distillation is a **byproduct** the stations monetize by reselling the Q&A/reasoning pairs — "the real gold."
+- **Account mass-production supply chain**: anti-detect headless browsers (network-layer detection "has lost"), SMS/SIM farms (~$0.008/number), AI fake IDs passing MRZ/ICAO-9303 checksums, and crypto "KYC manufacturers" buying real face-scans from locals ($5 → resold $100); Worldcoin eyeball black market.
+- **Why 70–90% cheaper = stacked fraud**: (1) Claude Max pooling across weekly limits, (2) shadow-API model swap (Sonnet→Haiku/Gemini; Med-QA 83.82%→~37%), (3) stolen credit cards, (4) prompt/reasoning data resale.
+
+**NEW vector — the "worm/hijacked-subscription" theory (theft of *your* tokens):**
+Supply-chain worms (Shai-Hulud on NPM; PyPI/AUR compromises) turn victims' machines into **mini transit-station nodes** — malware silently spawns background Claude Code sessions on infected devs' laptops, sipping their subscription "just a little" to evade notice. Explains the epidemic of users blowing through weekly limits. This is the concrete answer to *"how do they steal people's tokens?"*
+
+### Root-cause framing → solution
+Every theft vector exploits one root cause: **an unlimited, long-lived bearer credential** (API key / Max subscription) sitting on a machine or handed to a proxy. Our build (`ProofOfModel`) attacks that root cause:
+
+| Vector | Defeated by |
+|---|---|
+| Shadow-API model swap | Authenticity oracle (`AttestationRegistry`) — proves real model, on-chain reputation |
+| Worm hijacks subscription | Scoped session: spend cap + expiry + on-chain debits + `revoke()` (`PrepaidGateway`) |
+| Stolen/leaked API key | Gateway holds provider key server-side; agent holds no reusable secret |
+| Account/Max pooling | Per-call on-chain metering + attribution (visible, rate-limitable) |
+| Stolen credit cards | Prepaid MON balance replaces card billing (no chargeback vector) |
+| Data harvesting | *Partial* — first-party gateway you run; roadmap: data-custody attestation |
+
+5/6 neutralized, 1 partial. Monad is load-bearing: per-inference micropayments + live reputation are infeasible on L1.

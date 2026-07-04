@@ -1,22 +1,15 @@
-// Deploy AttestationRegistry to Monad testnet using viem.
+// Deploy AttestationRegistry + PrepaidGateway to Monad testnet using viem.
 // Requires RELAYER_PRIVATE_KEY in .env.local (a funded Monad testnet key).
 import fs from "fs";
-import {
-  createWalletClient,
-  createPublicClient,
-  http,
-} from "viem";
+import { createWalletClient, createPublicClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
-// --- tiny .env.local loader (no dependency) ---
 function loadEnv() {
   for (const file of [".env.local", ".env"]) {
     if (!fs.existsSync(file)) continue;
     for (const line of fs.readFileSync(file, "utf8").split("\n")) {
       const m = line.match(/^\s*([\w.-]+)\s*=\s*(.*)\s*$/);
-      if (m && !process.env[m[1]]) {
-        process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
-      }
+      if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
     }
   }
 }
@@ -34,42 +27,49 @@ const monadTestnet = {
 
 const pk = process.env.RELAYER_PRIVATE_KEY;
 if (!pk) {
-  console.error(
-    "Missing RELAYER_PRIVATE_KEY in .env.local. Create a key, fund it at https://faucet.monad.xyz, then retry."
-  );
+  console.error("Missing RELAYER_PRIVATE_KEY in .env.local. Fund a key at https://faucet.monad.xyz.");
   process.exit(1);
 }
 const account = privateKeyToAccount(pk.startsWith("0x") ? pk : "0x" + pk);
-
-const { abi, bytecode } = JSON.parse(
-  fs.readFileSync("lib/contract.json", "utf8")
-);
+const artifacts = JSON.parse(fs.readFileSync("lib/contracts.json", "utf8"));
 
 const publicClient = createPublicClient({ chain: monadTestnet, transport: http() });
 const wallet = createWalletClient({ account, chain: monadTestnet, transport: http() });
 
 const bal = await publicClient.getBalance({ address: account.address });
-console.log("Deployer:", account.address);
-console.log("Balance :", bal.toString(), "wei");
+console.log("Deployer:", account.address, "| balance:", bal.toString(), "wei");
 if (bal === 0n) {
-  console.error("Deployer has 0 MON. Fund it at https://faucet.monad.xyz and retry.");
+  console.error("Deployer has 0 MON. Fund at https://faucet.monad.xyz.");
   process.exit(1);
 }
 
-console.log("Deploying AttestationRegistry...");
-const hash = await wallet.deployContract({ abi, bytecode });
-console.log("tx:", hash);
-const receipt = await publicClient.waitForTransactionReceipt({ hash });
-console.log("✓ deployed at:", receipt.contractAddress);
-console.log("  explorer:", `https://testnet.monadexplorer.com/address/${receipt.contractAddress}`);
-
-// persist address into .env.local (NEXT_PUBLIC_ so the browser can read it)
-const addrLine = `NEXT_PUBLIC_CONTRACT_ADDRESS=${receipt.contractAddress}`;
-let env = fs.existsSync(".env.local") ? fs.readFileSync(".env.local", "utf8") : "";
-if (/NEXT_PUBLIC_CONTRACT_ADDRESS=.*/.test(env)) {
-  env = env.replace(/NEXT_PUBLIC_CONTRACT_ADDRESS=.*/, addrLine);
-} else {
-  env += (env.endsWith("\n") || env === "" ? "" : "\n") + addrLine + "\n";
+async function deploy(name) {
+  const { abi, bytecode } = artifacts[name];
+  console.log(`Deploying ${name}...`);
+  const hash = await wallet.deployContract({ abi, bytecode });
+  const receipt = await publicClient.waitForTransactionReceipt({ hash });
+  console.log(`✓ ${name} @ ${receipt.contractAddress}`);
+  console.log(`  https://testnet.monadexplorer.com/address/${receipt.contractAddress}`);
+  return receipt.contractAddress;
 }
+
+const attestation = await deploy("AttestationRegistry");
+const gateway = await deploy("PrepaidGateway");
+
+// persist addresses into .env.local (+ a JSON for the app)
+function setEnv(env, key, val) {
+  const line = `${key}=${val}`;
+  return new RegExp(`${key}=.*`).test(env)
+    ? env.replace(new RegExp(`${key}=.*`), line)
+    : env + (env.endsWith("\n") || env === "" ? "" : "\n") + line + "\n";
+}
+let env = fs.existsSync(".env.local") ? fs.readFileSync(".env.local", "utf8") : "";
+env = setEnv(env, "NEXT_PUBLIC_CONTRACT_ADDRESS", attestation);
+env = setEnv(env, "NEXT_PUBLIC_GATEWAY_ADDRESS", gateway);
 fs.writeFileSync(".env.local", env);
-console.log("✓ wrote NEXT_PUBLIC_CONTRACT_ADDRESS to .env.local");
+
+fs.writeFileSync(
+  "lib/deployment.json",
+  JSON.stringify({ AttestationRegistry: attestation, PrepaidGateway: gateway }, null, 2)
+);
+console.log("✓ wrote addresses to .env.local + lib/deployment.json");

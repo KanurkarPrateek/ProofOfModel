@@ -30,3 +30,12 @@ export function relayerWallet() {
 
 export const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
   "") as `0x${string}` | "";
+
+export const GATEWAY_ADDRESS = (process.env.NEXT_PUBLIC_GATEWAY_ADDRESS ||
+  "") as `0x${string}` | "";
+
+/** Upstream provider the gateway forwards to (server-held key never leaves here). */
+export const UPSTREAM_BASE =
+  process.env.UPSTREAM_BASE_URL || "http://localhost:4000/v1";
+export const UPSTREAM_KEY =
+  process.env.UPSTREAM_API_KEY || "sk-test-litellm-proxy-key";

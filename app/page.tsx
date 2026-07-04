@@ -66,7 +66,12 @@ export default function Home() {
           </p>
         </div>
       </div>
-      <span className="pill">Monad Blitz · Agent Economy</span>
+      <span className="pill">Monad Blitz · Agent Economy</span>{" "}
+      <span className="pill">
+        <a href="/gateway" style={{ color: "inherit" }}>
+          secure gateway →
+        </a>
+      </span>
 
       <div className="card">
         <div className="dim" style={{ marginBottom: 6 }}>
