@@ -71,8 +71,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "session expired" }, { status: 403 });
     remaining = cap - spent;
     userBalance = bal;
-    if (remaining <= 0n || userBalance <= 0n)
-      return NextResponse.json({ error: "session cap or balance exhausted" }, { status: 402 });
+    if (userBalance <= 0n)
+      return NextResponse.json(
+        { error: "no prepaid balance — deposit MON (step 2) before making a request" },
+        { status: 402 }
+      );
+    if (remaining <= 0n)
+      return NextResponse.json(
+        { error: "session cap exhausted — open a new session with a higher cap" },
+        { status: 402 }
+      );
   }
 
   // --- 3. forward to the real upstream with the SERVER-HELD key ---

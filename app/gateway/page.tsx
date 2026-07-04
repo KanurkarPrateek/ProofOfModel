@@ -347,8 +347,18 @@ export default function Gateway() {
           <input value={model} onChange={(e) => setModel(e.target.value)} />
           <label>Prompt</label>
           <input value={prompt} onChange={(e) => setPrompt(e.target.value)} />
+          {deployed && Number(balance) <= 0 && (
+            <div className="dim" style={{ color: "var(--yellow)", marginTop: 10 }}>
+              ⚠ Prepaid balance is 0 — deposit MON (step 2) first, or the gateway
+              will block the request.
+            </div>
+          )}
           <div style={{ marginTop: 14 }}>
-            <button className="btn" disabled={busy === "call"} onClick={call}>
+            <button
+              className="btn"
+              disabled={busy === "call" || !session}
+              onClick={call}
+            >
               {busy === "call" ? "Calling…" : "Send through gateway"}
             </button>
           </div>
