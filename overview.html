@@ -46,6 +46,13 @@
   .stat .v { font-family: var(--head); font-size: clamp(22px, 4vw, 30px); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
   .stat .k { font-family: var(--sans); font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.35; }
 
+  /* coverage / press */
+  .press-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+  .clip { border: 1px solid var(--strong); background: #fff; overflow: hidden; break-inside: avoid; }
+  .clip img { width: 100%; height: 116px; object-fit: cover; object-position: top center; display: block; border-bottom: 1px solid var(--rule); }
+  .clip figcaption { padding: 8px 10px; font-size: 11px; line-height: 1.32; color: var(--ink); }
+  .clip .src { font-family: var(--sans); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--red); display: block; margin-bottom: 2px; }
+
   /* figures / diagrams */
   figure { margin: 26px 0 0; border: 1px solid var(--strong); background: var(--paper); break-inside: avoid; }
   figcaption { border-bottom: 1px solid var(--rule); padding: 12px 18px; }
@@ -147,6 +154,22 @@
     <span>Background → Problem → Solution</span>
     <span>Testnet · Chain 10143</span>
   </div>
+
+  <!-- COVERAGE -->
+  <section class="coverage" style="margin-top:28px">
+    <p class="kicker">Recently surfaced · Feb–Jul 2026</p>
+    <h2>Small today. A big problem tomorrow.</h2>
+    <div class="sub-rule"></div>
+    <p class="standfirst" style="margin-bottom:16px">Not mainstream yet — but in just a few months a model lab, security researchers, and the developer community have each independently flagged it. As the Agent Economy scales, this becomes a major issue. We got to it early.</p>
+    <div class="press-grid">
+      <figure class="clip"><img src="press/anthropic.png" alt=""><figcaption><span class="src">Anthropic · official</span>Detecting &amp; preventing distillation attacks</figcaption></figure>
+      <figure class="clip"><img src="press/arxiv.png" alt=""><figcaption><span class="src">arXiv · CISPA</span>Real Money, Fake Models: Shadow APIs</figcaption></figure>
+      <figure class="clip"><img src="press/chinatalk.png" alt=""><figcaption><span class="src">ChinaTalk · Oxford</span>How to Buy Cheap Claude Tokens in China</figcaption></figure>
+      <figure class="clip"><img src="press/hackernews.png" alt=""><figcaption><span class="src">Hacker News · 812 pts</span>Alibaba illicitly extracted Claude</figcaption></figure>
+      <figure class="clip"><img src="press/primeagen.png" alt=""><figcaption><span class="src">ThePrimeagen · 335k views</span>The Secret Token Underworld</figcaption></figure>
+      <figure class="clip"><img src="press/twitter.png" alt=""><figcaption><span class="src">X · @HarshalsinghCN</span>Selling "Claude" at 5% cost</figcaption></figure>
+    </div>
+  </section>
 
   <!-- I. BACKGROUND -->
   <section>
