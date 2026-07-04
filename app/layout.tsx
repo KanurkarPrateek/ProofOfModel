@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Sidebar from "./components/Sidebar";
 
 export const metadata: Metadata = {
   title: "Proof of Model — Trust layer for the Agent Economy",
@@ -15,19 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <header className="appbar">
-          <div className="appbar-left">
-            <span className="appbar-menu">☰</span>
-            <span className="appbar-brand">ProofOfModel</span>
-            <span className="appbar-project">
-              <b>monad-testnet</b> ▾
-            </span>
-          </div>
-          <div className="appbar-right">
-            <span className="appbar-avatar">S</span>
-          </div>
-        </header>
-        {children}
+        <div className="shell">
+          <Sidebar />
+          <div className="content">{children}</div>
+        </div>
       </body>
     </html>
   );
