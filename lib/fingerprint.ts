@@ -52,8 +52,9 @@ async function askEndpoint(
     body: JSON.stringify({
       model,
       messages: [{ role: "user", content: prompt }],
-      temperature: 0,
-      max_tokens: 64,
+      // Reasoning models (Kimi, GPT-5.x) spend tokens on hidden reasoning, so
+      // keep the budget generous or `content` comes back empty.
+      max_tokens: 512,
     }),
   });
   if (!res.ok) {
@@ -61,29 +62,38 @@ async function askEndpoint(
     throw new Error(`endpoint ${res.status}: ${body.slice(0, 200)}`);
   }
   const data = await res.json();
-  return (
-    data?.choices?.[0]?.message?.content ??
-    data?.choices?.[0]?.text ??
-    ""
-  ).toString();
+  const msg = data?.choices?.[0]?.message ?? {};
+  const content = (msg.content ?? data?.choices?.[0]?.text ?? "").toString();
+  // Fall back to the chain-of-thought when a reasoning model returns empty
+  // content — it usually reveals the model's identity ("I am Kimi…").
+  if (content.trim()) return content;
+  return (msg.reasoning_content ?? msg.reasoning ?? "").toString();
 }
 
 function matchFamily(answer: string, probeIdx: number): Family | null {
   const probe = PROBES[probeIdx];
+  const hits: Family[] = [];
   for (const fam of Object.keys(probe.signals) as Family[]) {
     const patterns = probe.signals[fam]!;
-    if (patterns.some((re) => re.test(answer))) return fam;
+    if (patterns.some((re) => re.test(answer))) hits.push(fam);
   }
-  return null;
+  // Only count unambiguous matches — if an answer fits two families, it tells
+  // us nothing about which one it is.
+  return hits.length === 1 ? hits[0] : null;
 }
 
 /** Run the full probe battery against an endpoint and return a verdict. */
 export async function fingerprint(
   baseUrl: string,
   apiKey: string | undefined,
-  claimedModel: string
+  claimedModel: string,
+  // The model name actually sent to the endpoint. Defaults to claimedModel.
+  // A reseller's proxy would internally route "claimedModel" to something
+  // cheaper — passing a different servedModel emulates that substitution.
+  servedModel?: string
 ): Promise<Verdict> {
   const claimedFamily = familyOfClaim(claimedModel);
+  const requestModel = servedModel || claimedModel;
   const votes: Record<string, number> = {};
   const probes: ProbeResult[] = [];
 
@@ -97,12 +107,12 @@ export async function fingerprint(
       answer = await askEndpoint(
         baseUrl,
         apiKey,
-        claimedModel,
+        requestModel,
         p.prompt,
         controller.signal
       );
       matched = matchFamily(answer, i);
-      if (matched) votes[matched] = (votes[matched] ?? 0) + 1;
+      if (matched) votes[matched] = (votes[matched] ?? 0) + p.weight;
     } catch (err: any) {
       answer = `⚠️ ${err.message || "request failed"}`;
     } finally {
@@ -127,11 +137,16 @@ export async function fingerprint(
     }
   }
 
-  const confidence = Math.round((best / PROBES.length) * 100);
+  // Confidence = purity of the vote among probes that produced a matchable
+  // answer (real models hedge on some probes; don't punish that as long as the
+  // signals that *do* land agree).
+  const matchedCount = Object.values(votes).reduce((a, b) => a + b, 0);
+  const confidence = matchedCount ? Math.round((best / matchedCount) * 100) : 0;
   const verified =
     detectedFamily !== "unknown" &&
     detectedFamily === claimedFamily &&
-    confidence >= 50;
+    best >= 2 &&
+    best / matchedCount >= 0.6;
 
   const summary = verified
     ? `Authentic: behaves like ${FAMILY_LABEL[detectedFamily]}, matching the claimed model.`

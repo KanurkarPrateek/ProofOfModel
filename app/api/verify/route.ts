@@ -9,7 +9,7 @@ import {
 import { ATTESTATION_ABI } from "@/lib/abi";
 
 export async function POST(req: NextRequest) {
-  const { endpoint, apiKey, claimedModel } = await req.json();
+  const { endpoint, apiKey, claimedModel, servedModel } = await req.json();
   if (!endpoint || !claimedModel) {
     return NextResponse.json(
       { error: "endpoint and claimedModel are required" },
@@ -25,7 +25,12 @@ export async function POST(req: NextRequest) {
   // 1) Fingerprint the endpoint.
   let verdict;
   try {
-    verdict = await fingerprint(callBase, apiKey || undefined, claimedModel);
+    verdict = await fingerprint(
+      callBase,
+      apiKey || undefined,
+      claimedModel,
+      servedModel || undefined
+    );
   } catch (err: any) {
     return NextResponse.json(
       { error: `verification failed: ${err.message}` },

@@ -6,17 +6,27 @@ const CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
 const EXPLORER = "https://testnet.monadexplorer.com";
 
 export default function Home() {
-  const [endpoint, setEndpoint] = useState("/api/mock/honest");
-  const [claimedModel, setClaimedModel] = useState("claude-opus-4-8");
-  const [apiKey, setApiKey] = useState("");
+  const [endpoint, setEndpoint] = useState("http://localhost:4000/v1");
+  const [claimedModel, setClaimedModel] = useState("claude-opus-4.8");
+  const [servedModel, setServedModel] = useState("");
+  const [apiKey, setApiKey] = useState("sk-test-litellm-proxy-key");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
 
-  function preset(kind: "honest" | "fraud") {
-    setEndpoint(`/api/mock/${kind}`);
-    setClaimedModel("claude-opus-4-8");
-    setApiKey("");
+  const LITELLM = "http://localhost:4000/v1";
+  const KEY = "sk-test-litellm-proxy-key";
+
+  function apply(cfg: {
+    endpoint: string;
+    claimed: string;
+    served?: string;
+    key?: string;
+  }) {
+    setEndpoint(cfg.endpoint);
+    setClaimedModel(cfg.claimed);
+    setServedModel(cfg.served ?? "");
+    setApiKey(cfg.key ?? "");
     setResult(null);
     setError("");
   }
@@ -29,7 +39,7 @@ export default function Home() {
       const res = await fetch("/api/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint, claimedModel, apiKey }),
+        body: JSON.stringify({ endpoint, claimedModel, servedModel, apiKey }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "failed");
@@ -59,12 +69,60 @@ export default function Home() {
       <span className="pill">Monad Blitz · Agent Economy</span>
 
       <div className="card">
-        <div className="row" style={{ marginBottom: 4 }}>
-          <button className="btn demo secondary" onClick={() => preset("honest")}>
-            ✓ Load honest endpoint
+        <div className="dim" style={{ marginBottom: 6 }}>
+          Live demos (real LiteLLM proxy):
+        </div>
+        <div className="row" style={{ marginBottom: 8 }}>
+          <button
+            className="btn demo secondary"
+            onClick={() =>
+              apply({ endpoint: LITELLM, claimed: "claude-opus-4.8", key: KEY })
+            }
+          >
+            ✓ Real Claude
           </button>
-          <button className="btn demo secondary" onClick={() => preset("fraud")}>
-            ⚠ Load scam endpoint
+          <button
+            className="btn demo secondary"
+            onClick={() =>
+              apply({
+                endpoint: LITELLM,
+                claimed: "claude-opus-4.8",
+                served: "gpt-5.5",
+                key: KEY,
+              })
+            }
+          >
+            ⚠ Scam: Opus→GPT
+          </button>
+          <button
+            className="btn demo secondary"
+            onClick={() =>
+              apply({
+                endpoint: LITELLM,
+                claimed: "claude-opus-4.8",
+                served: "kimi-k2.5",
+                key: KEY,
+              })
+            }
+          >
+            ⚠ Distill: Opus→Kimi
+          </button>
+        </div>
+        <div className="dim" style={{ marginBottom: 6 }}>
+          Offline demos (no keys / cluster needed):
+        </div>
+        <div className="row" style={{ marginBottom: 4 }}>
+          <button
+            className="btn demo secondary"
+            onClick={() => apply({ endpoint: "/api/mock/honest", claimed: "claude-opus-4.8" })}
+          >
+            ✓ Mock honest
+          </button>
+          <button
+            className="btn demo secondary"
+            onClick={() => apply({ endpoint: "/api/mock/fraud", claimed: "claude-opus-4.8" })}
+          >
+            ⚠ Mock scam
           </button>
         </div>
 
@@ -75,11 +133,21 @@ export default function Home() {
           placeholder="https://some-reseller.ai/v1"
         />
 
-        <label>Claimed model</label>
+        <label>Claimed model (what the endpoint advertises)</label>
         <input
           value={claimedModel}
           onChange={(e) => setClaimedModel(e.target.value)}
-          placeholder="claude-opus-4-8"
+          placeholder="claude-opus-4.8"
+        />
+
+        <label>
+          Served model override (demo only — simulates a proxy secretly routing
+          to a cheaper model; leave blank normally)
+        </label>
+        <input
+          value={servedModel}
+          onChange={(e) => setServedModel(e.target.value)}
+          placeholder="(blank = same as claimed)"
         />
 
         <label>API key (optional — leave blank for the mock endpoints)</label>

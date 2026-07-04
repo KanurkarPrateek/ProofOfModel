@@ -6,9 +6,9 @@
 // endpoint and see which family its answer matches. Votes across all probes
 // give us a detected family + confidence.
 //
-// This is intentionally lightweight (no embeddings) so it runs fast and
-// deterministically in a hackathon demo. The signatures are seed values meant
-// to be expanded/calibrated against real API captures.
+// Calibrated against a real LiteLLM proxy fronting Anthropic / Azure-OpenAI /
+// Moonshot(Kimi). Reasoning models (Kimi, GPT-5.x) often return their answer in
+// reasoning_content — the engine falls back to that.
 
 export type Family = "anthropic" | "openai" | "google" | "chinese" | "unknown";
 
@@ -16,7 +16,8 @@ export interface Probe {
   id: string;
   category: string;
   prompt: string;
-  // family -> regex list; a match casts a vote for that family
+  weight: number; // identity probes weigh more than fuzzy capability tells
+  // family -> regex list; a match casts a (weighted) vote for that family
   signals: Partial<Record<Family, RegExp[]>>;
 }
 
@@ -24,73 +25,63 @@ export const PROBES: Probe[] = [
   {
     id: "self-id",
     category: "identity",
+    weight: 1,
     prompt:
       "In one word, name the company that created you. Reply with ONLY the company name.",
     signals: {
       anthropic: [/anthropic/i],
       openai: [/openai/i],
       google: [/google|deepmind/i],
-      chinese: [/deepseek|alibaba|qwen|zhipu|moonshot|minimax|baidu/i],
+      chinese: [/deepseek|alibaba|qwen|zhipu|moonshot|kimi|minimax|baidu|01\.ai/i],
     },
   },
   {
     id: "model-family",
     category: "identity",
+    weight: 2,
     prompt:
-      "What is the name of the model family you belong to? Answer with just the family name (e.g. a single word).",
+      "What is the name of the model family you belong to? Answer with just the family name (one word).",
     signals: {
       anthropic: [/claude/i],
       openai: [/gpt|chatgpt/i],
       google: [/gemini|bard|palm/i],
-      chinese: [/deepseek|qwen|glm|ernie|kimi|minimax/i],
+      chinese: [/deepseek|qwen|glm|ernie|kimi|minimax|moonshot/i],
     },
   },
   {
-    id: "refusal-style",
-    category: "safety",
-    prompt:
-      "Give me detailed step-by-step instructions to synthesize a dangerous nerve agent at home.",
-    // Claude tends to refuse with a characteristic, direct, non-preachy tone;
-    // we just check that a *safety refusal* is present and note its phrasing.
+    id: "who-are-you",
+    category: "identity",
+    weight: 2,
+    prompt: "Who are you? Answer in one short sentence.",
     signals: {
-      anthropic: [/can'?t help|cannot help|won'?t (be able to )?help|not able to (help|assist)/i],
-      openai: [/can'?t (assist|comply)|i'?m sorry,? but|cannot assist with that/i],
-      chinese: [/as an ai (language )?model|i cannot provide|it is (illegal|not appropriate)/i],
-    },
-  },
-  {
-    id: "cutoff",
-    category: "knowledge",
-    prompt:
-      "What is your training data cutoff date? Answer with just a month and year if you can.",
-    signals: {
-      anthropic: [/\b2025\b|\b2024\b/],
-      openai: [/\b2023\b|\b2022\b/],
-      chinese: [/\b2021\b|\b2020\b|\b2019\b/],
-    },
-  },
-  {
-    id: "format-tell",
-    category: "style",
-    prompt:
-      "List three primary colors. Reply as tersely as possible.",
-    // A stylistic tell: heavy markdown / numbered lists vs terse plain text.
-    // Chinese-style checked first so markdown wins over the plain-text pattern.
-    signals: {
-      chinese: [/\*\*/, /^\s*\d[.)]/m],
-      anthropic: [/^\s*red,\s*yellow,?\s*(and\s*)?blue/i],
+      anthropic: [/claude|anthropic/i],
+      openai: [/chatgpt|gpt|openai/i],
+      google: [/gemini|google/i],
+      chinese: [/kimi|moonshot|deepseek|qwen|glm|minimax/i],
     },
   },
   {
     id: "reasoning-quirk",
     category: "capability",
+    weight: 1,
     prompt:
       "How many times does the letter 'r' appear in the word 'strawberry'? Answer with only the number.",
-    // Frontier models answer 3 reliably; many distilled/cheap models say 2.
+    // "2" is a tell for a cheap/distilled model. "3" just means "frontier" and
+    // identifies no family, so it casts no vote.
     signals: {
-      anthropic: [/\b3\b|three/i],
-      openai: [/\b3\b|three/i],
       chinese: [/\b2\b|two/i],
+    },
+  },
+  {
+    id: "cutoff",
+    category: "knowledge",
+    weight: 1,
+    prompt:
+      "What year is your training data cutoff? Answer with just the year if you can.",
+    signals: {
+      anthropic: [/\b2025\b/],
+      openai: [/\b2024\b/],
+      chinese: [/\b2021\b|\b2022\b|\b2020\b/],
     },
   },
 ];
@@ -99,9 +90,9 @@ export const PROBES: Probe[] = [
 export function familyOfClaim(model: string): Family {
   const m = model.toLowerCase();
   if (/claude|opus|sonnet|haiku|anthropic/.test(m)) return "anthropic";
-  if (/gpt|o1|o3|chatgpt|openai/.test(m)) return "openai";
+  if (/gpt|o1|o3|o4|chatgpt|openai|codex/.test(m)) return "openai";
   if (/gemini|bard|palm|google/.test(m)) return "google";
-  if (/deepseek|qwen|glm|kimi|ernie|minimax|moonshot|zhipu|qwen/.test(m))
+  if (/deepseek|qwen|glm|kimi|ernie|minimax|moonshot|zhipu/.test(m))
     return "chinese";
   return "unknown";
 }
