@@ -1,0 +1,340 @@
+<style>
+  :root {
+    --paper: #f4f3ef;
+    --paper-2: #eceae3;
+    --ink: #191712;
+    --ink-2: #3d3a32;
+    --muted: #6c685e;
+    --rule: #cbc7bb;
+    --rule-strong: #191712;
+    --red: #9d1c1c;
+    --green: #2c6438;
+    --serif: "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
+    --head: "Georgia", "Times New Roman", serif;
+    --sans: "Helvetica Neue", Arial, system-ui, sans-serif;
+    --mono: ui-monospace, Menlo, "Courier New", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--serif); line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .paper { max-width: 900px; margin: 0 auto; padding: 34px 22px 90px; }
+
+  /* ---- masthead ---- */
+  .nameplate { text-align: center; border-bottom: 2px solid var(--rule-strong); padding-bottom: 12px; }
+  .nameplate .title {
+    font-family: var(--head); font-weight: 700; letter-spacing: -.02em;
+    font-size: clamp(40px, 9vw, 78px); line-height: 1; margin: 4px 0 8px;
+  }
+  .nameplate .motto { font-family: var(--sans); font-size: 12px; letter-spacing: .34em; text-transform: uppercase; color: var(--muted); }
+  .dateline {
+    display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    font-family: var(--sans); font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--ink-2); padding: 7px 2px; border-bottom: 1px solid var(--rule-strong); margin-bottom: 30px;
+  }
+
+  /* ---- headline / hero ---- */
+  .headline {
+    font-family: var(--head); font-weight: 700; letter-spacing: -.015em;
+    font-size: clamp(30px, 6.4vw, 56px); line-height: 1.04; text-align: center;
+    text-wrap: balance; margin: 6px auto 14px; max-width: 16ch;
+  }
+  .standfirst {
+    text-align: center; font-size: clamp(17px, 2.4vw, 21px); font-style: italic;
+    color: var(--ink-2); max-width: 58ch; margin: 0 auto 26px; line-height: 1.45;
+  }
+  .byline { text-align: center; font-family: var(--sans); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 8px 0; margin-bottom: 30px; }
+
+  /* ---- price infobox ---- */
+  .infobox {
+    border: 1px solid var(--rule-strong); padding: 22px 24px; margin: 0 0 30px;
+    display: flex; align-items: center; gap: clamp(16px, 5vw, 44px); flex-wrap: wrap; justify-content: center;
+    background: var(--paper-2);
+  }
+  .price { text-align: center; font-variant-numeric: tabular-nums; }
+  .price .big { font-family: var(--head); font-size: clamp(38px, 9vw, 62px); font-weight: 700; line-height: 1; letter-spacing: -.02em; }
+  .price.black .big { color: var(--red); }
+  .price small { display: block; font-family: var(--sans); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+  .price .arrow { }
+  .to { font-size: clamp(24px, 5vw, 36px); color: var(--muted); }
+  .infobox .note { flex: 1 1 230px; min-width: 210px; font-size: 15px; line-height: 1.5; }
+  .infobox .note b { color: var(--red); }
+
+  /* ---- sections ---- */
+  section { margin-top: 46px; }
+  .kicker {
+    font-family: var(--sans); font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--red); text-align: center; margin-bottom: 6px;
+  }
+  h2 {
+    font-family: var(--head); font-weight: 700; letter-spacing: -.01em; text-align: center;
+    font-size: clamp(24px, 4vw, 34px); margin: 0 0 4px; text-wrap: balance;
+  }
+  .sub-rule { width: 46px; height: 2px; background: var(--rule-strong); margin: 12px auto 24px; }
+  h3 { font-family: var(--head); font-size: 18px; margin: 0 0 6px; letter-spacing: -.01em; }
+  p { margin: 0 0 15px; }
+  .lede { font-size: 17px; color: var(--ink-2); }
+
+  /* drop cap on the opening narrative */
+  .cols { column-count: 2; column-gap: 34px; font-size: 15px; line-height: 1.62; }
+  .cols p { margin: 0 0 12px; }
+  @media (max-width: 620px) { .cols { column-count: 1; } }
+  .dropcap::first-letter {
+    font-family: var(--head); font-weight: 700; float: left; font-size: 58px;
+    line-height: .8; padding: 4px 10px 0 0; color: var(--ink);
+  }
+
+  /* ---- stats strip ---- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--rule-strong); border-bottom: 1px solid var(--rule-strong); }
+  @media (max-width: 620px) { .stats { grid-template-columns: 1fr 1fr; } }
+  .stat { padding: 16px 12px; text-align: center; border-left: 1px solid var(--rule); }
+  .stat:first-child { border-left: 0; }
+  @media (max-width: 620px) { .stat:nth-child(3) { border-left: 0; } .stat:nth-child(odd){border-left:0;} }
+  .stat .v { font-family: var(--head); font-size: clamp(22px, 4vw, 30px); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .stat .k { font-family: var(--sans); font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.35; }
+
+  /* ---- credential compare ---- */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--rule-strong); }
+  @media (max-width: 620px) { .compare { grid-template-columns: 1fr; } }
+  .lane { padding: 22px 22px; }
+  .lane + .lane { border-left: 1px solid var(--rule-strong); }
+  @media (max-width: 620px) { .lane + .lane { border-left: 0; border-top: 1px solid var(--rule-strong); } }
+  .lane h3 .mk { font-family: var(--sans); font-weight: 700; margin-right: 6px; }
+  .lane.bad h3 .mk { color: var(--red); }
+  .lane.good h3 .mk { color: var(--green); }
+  .lane p { font-size: 15px; margin: 8px 0 0; }
+  .lane .sub { color: var(--muted); font-size: 13.5px; font-style: italic; }
+  .caption { text-align: center; font-family: var(--sans); font-size: 12.5px; color: var(--muted); margin-top: 12px; }
+
+  /* ---- feature columns (modules) ---- */
+  .feat { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  @media (max-width: 620px) { .feat { grid-template-columns: 1fr; } }
+  .col { padding: 4px 26px; }
+  .col + .col { border-left: 1px solid var(--rule); }
+  @media (max-width: 620px) { .col + .col { border-left: 0; border-top: 1px solid var(--rule); padding-top: 20px; margin-top: 8px; } }
+  .col .tag { font-family: var(--sans); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--red); }
+  .col ul { margin: 10px 0 0; padding-left: 18px; }
+  .col li { font-size: 14.5px; margin: 5px 0; color: var(--ink-2); }
+
+  /* ---- tables ---- */
+  .twrap { overflow-x: auto; border-top: 2px solid var(--rule-strong); border-bottom: 2px solid var(--rule-strong); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 520px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-family: var(--sans); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  tr:last-child td { border-bottom: 0; }
+  .mono { font-family: var(--mono); font-size: 12.5px; }
+  .tag-ok { color: var(--green); font-family: var(--sans); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+  .tag-part { color: var(--red); font-family: var(--sans); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+
+  /* ---- monad vs eth ---- */
+  .callout { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--rule-strong); margin-top: 22px; }
+  @media (max-width: 620px) { .callout { grid-template-columns: 1fr; } }
+  .vs { padding: 20px 22px; }
+  .vs + .vs { border-left: 1px solid var(--rule-strong); }
+  @media (max-width: 620px) { .vs + .vs { border-left: 0; border-top: 1px solid var(--rule-strong); } }
+  .vs h3 { font-family: var(--sans); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 10px; }
+  .vs.win h3 { color: var(--green); }
+  .vs .row { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: 14px; border-top: 1px dotted var(--rule); }
+  .vs .row:first-of-type { border-top: 0; }
+  .vs .row span:last-child { font-family: var(--mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+  /* ---- steps ---- */
+  .steps { border-top: 1px solid var(--rule); }
+  .step { display: flex; gap: 16px; padding: 16px 4px; border-bottom: 1px solid var(--rule); align-items: baseline; }
+  .step .idx { font-family: var(--head); font-weight: 700; font-size: 22px; color: var(--red); min-width: 26px; }
+  .step .body h3 { margin-bottom: 3px; }
+  .step .body p { margin: 0; font-size: 14px; color: var(--ink-2); }
+
+  /* ---- deploy ledger ---- */
+  .deploy { border-top: 2px solid var(--rule-strong); border-bottom: 2px solid var(--rule-strong); }
+  .drow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+  .drow:last-child { border-bottom: 0; }
+  .drow .l { font-size: 14.5px; }
+  .drow .l .muted { color: var(--muted); font-style: italic; }
+  a { color: var(--ink); text-decoration-color: var(--red); text-underline-offset: 2px; }
+  a.mono { color: var(--red); }
+
+  footer { margin-top: 54px; border-top: 2px solid var(--rule-strong); padding-top: 14px; font-family: var(--sans); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+</style>
+
+<div class="paper">
+
+  <!-- MASTHEAD -->
+  <div class="nameplate">
+    <div class="motto">Trust &amp; Settlement for the Agent Economy</div>
+    <div class="title">The ProofOfModel</div>
+  </div>
+  <div class="dateline">
+    <span>Monad Blitz Pune · Vol. II</span>
+    <span>The Agent Economy</span>
+    <span>Testnet · Chain 10143</span>
+  </div>
+
+  <!-- HERO -->
+  <p class="kicker">The Investigation</p>
+  <h1 class="headline">A 93% discount that shouldn't exist</h1>
+  <p class="standfirst">Someone is selling Claude for a fraction of its price. The catch: you may not get the model you paid for — and your own key may be draining while you sleep.</p>
+
+  <div class="infobox">
+    <div class="price"><div class="big">$15</div><small>Anthropic · 1M Opus tokens</small></div>
+    <div class="to">→</div>
+    <div class="price black"><div class="big">$1</div><small>black-market reseller</small></div>
+    <div class="note">The math is impossible — unless the model is swapped, the credential is stolen, or your prompts are being resold. <b>Usually all three.</b></div>
+  </div>
+
+  <!-- 1 · PROBLEM -->
+  <section>
+    <p class="kicker">Section I</p>
+    <h2>The token black market</h2>
+    <div class="sub-rule"></div>
+    <div class="cols">
+      <p class="dropcap">A grey economy of "transit stations" resells frontier models at 70 to 95 percent below list. It runs on stacked fraud: advertise Opus but quietly serve a cheaper model; route your prompts through a proxy and resell them as training data; pay with stolen cards and pooled subscriptions.</p>
+      <p>The victims are researchers running experiments on fake models, agents overpaying for downgraded output, and ordinary developers whose subscriptions are quietly siphoned. A 2026 audit found nearly half of these resellers misrepresent the model behind the endpoint.</p>
+    </div>
+    <div class="stats" style="margin-top:22px">
+      <div class="stat"><div class="v">70–95%</div><div class="k">below official price</div></div>
+      <div class="stat"><div class="v">45.8%</div><div class="k">of shadow APIs lie about the model</div></div>
+      <div class="stat"><div class="v">83.8→37</div><div class="k">Med-QA accuracy when swapped</div></div>
+      <div class="stat"><div class="v">17 / 187</div><div class="k">fake APIs found in published papers</div></div>
+    </div>
+  </section>
+
+  <!-- 2 · THEFT -->
+  <section>
+    <p class="kicker">Section II</p>
+    <h2>How your tokens get stolen</h2>
+    <div class="sub-rule"></div>
+    <p class="lede" style="text-align:center; max-width:62ch; margin:0 auto 22px;">Supply-chain worms hijack a developer's subscription and pipe the stolen tokens through the same transit stations. The root cause is the credential itself.</p>
+    <div class="compare">
+      <div class="lane bad">
+        <h3><span class="mk">✕</span> Today: an unlimited bearer key</h3>
+        <p>A long-lived API key sits in <span class="mono">~/.claude</span>. A worm reads it and drains your entire quota — silently, unbounded, until the weekly limit is gone.</p>
+        <p class="sub">Nothing caps it. Nothing shows it. Nothing revokes it.</p>
+      </div>
+      <div class="lane good">
+        <h3><span class="mk">✓</span> Ours: a scoped session</h3>
+        <p>The real key lives server-side — the worm can't steal it. All it finds is a capped, expiring, revocable session, and every use is an on-chain debit you can see.</p>
+        <p class="sub">Theft becomes bounded and visible, not silent and unlimited.</p>
+      </div>
+    </div>
+    <p class="caption">We don't stop malware from landing on your machine — we make sure it finds nothing worth stealing.</p>
+  </section>
+
+  <!-- 3 · SOLUTION -->
+  <section>
+    <p class="kicker">Section III</p>
+    <h2>Two modules, one trust layer</h2>
+    <div class="sub-rule"></div>
+    <div class="feat">
+      <div class="col">
+        <span class="tag">Module I · Authenticity</span>
+        <h3 style="margin-top:8px">Proof of Model</h3>
+        <p style="font-size:14.5px; color:var(--ink-2)">A behavioural probe battery fingerprints which model an endpoint really serves, then writes the verdict and a reputation score to Monad.</p>
+        <ul>
+          <li>Self-ID, refusal style, reasoning quirks, tokenizer tells</li>
+          <li>Cheating endpoints earn a permanent on-chain red flag</li>
+          <li>Any agent checks reputation before it pays</li>
+        </ul>
+      </div>
+      <div class="col">
+        <span class="tag">Module II · Anti-theft</span>
+        <h3 style="margin-top:8px">Prepaid Gateway</h3>
+        <p style="font-size:14.5px; color:var(--ink-2)">Replaces the stealable key with scoped, prepaid, per-call access — settled on Monad.</p>
+        <ul>
+          <li>Real provider key held server-side; agents never touch it</li>
+          <li>Session = spend cap + expiry + instant <span class="mono">revoke()</span></li>
+          <li>Every inference debited on-chain — auditable, bounded</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · MONAD -->
+  <section>
+    <p class="kicker">Section IV</p>
+    <h2>Where Monad comes in</h2>
+    <div class="sub-rule"></div>
+    <p class="lede" style="text-align:center; max-width:64ch; margin:0 auto 18px;">Everything that needs trust between parties who don't trust each other lives on-chain. The fingerprinting stays off-chain — it must call the models. The chain is the trust and settlement layer, not the compute.</p>
+    <div class="twrap">
+      <table>
+        <thead><tr><th>On-chain</th><th>Contract call</th><th>Why a chain, not a database</th></tr></thead>
+        <tbody>
+          <tr><td>Reputation ledger</td><td class="mono">attest · reputation</td><td>Public and tamper-proof — a cheating proxy can't erase its history; anyone verifies before paying</td></tr>
+          <tr><td>Prepaid balance</td><td class="mono">deposit · withdraw</td><td>Self-custody — you control the funds, withdraw anytime; no reseller to rug you</td></tr>
+          <tr><td>Scoped session</td><td class="mono">openSession · revoke</td><td>Cap, expiry and revoke enforced by code — even the operator can't overcharge you</td></tr>
+          <tr><td>Per-call settlement</td><td class="mono">debit</td><td>Public metering — every charge is an auditable event; kills invisible pooling</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <div class="vs">
+        <h3>Ethereum L1</h3>
+        <div class="row"><span>Block time</span><span>~12 s</span></div>
+        <div class="row"><span>Per-call gas</span><span>&gt; token cost</span></div>
+        <div class="row"><span>Micropayments</span><span>impossible</span></div>
+      </div>
+      <div class="vs win">
+        <h3>Monad</h3>
+        <div class="row"><span>Block time</span><span>~1 s</span></div>
+        <div class="row"><span>Throughput</span><span>~10,000 TPS</span></div>
+        <div class="row"><span>Micropayments</span><span>viable</span></div>
+      </div>
+    </div>
+    <p class="caption">Monad's throughput is the enabling condition, not decoration: per-call on-chain LLM billing is only possible on a fast, near-free chain.</p>
+  </section>
+
+  <!-- 5 · THREAT MODEL -->
+  <section>
+    <p class="kicker">Section V</p>
+    <h2>What we neutralize</h2>
+    <div class="sub-rule"></div>
+    <div class="twrap">
+      <table>
+        <thead><tr><th>Attack</th><th>Neutralized by</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Shadow-API model swap</td><td>Authenticity oracle + on-chain reputation</td><td><span class="tag-ok">Solved</span></td></tr>
+          <tr><td>Worm hijacks subscription</td><td>Scoped session: cap + expiry + revoke</td><td><span class="tag-ok">Solved</span></td></tr>
+          <tr><td>Stolen or leaked API key</td><td>Provider key held server-side</td><td><span class="tag-ok">Solved</span></td></tr>
+          <tr><td>Account or Max pooling</td><td>Per-call on-chain metering + attribution</td><td><span class="tag-ok">Solved</span></td></tr>
+          <tr><td>Stolen credit cards</td><td>Prepaid balance replaces card billing</td><td><span class="tag-ok">Solved</span></td></tr>
+          <tr><td>Prompt data harvesting</td><td>First-party gateway; custody proof next</td><td><span class="tag-part">Partial</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 6 · DEMO -->
+  <section>
+    <p class="kicker">Section VI</p>
+    <h2>The demonstration</h2>
+    <div class="sub-rule"></div>
+    <div class="steps">
+      <div class="step"><div class="idx">I</div><div class="body"><h3>Catch the swap</h3><p>Verify an endpoint claiming <span class="mono">claude-opus-4.8</span> → authentic, recorded on Monad. Point it at a proxy secretly serving GPT or Kimi → substitution detected, reputation drops.</p></div></div>
+      <div class="step"><div class="idx">II</div><div class="body"><h3>Meter a real call</h3><p>Deposit MON, open a small-cap session, call real Claude through the gateway — debited live on Monad. Show the transaction.</p></div></div>
+      <div class="step"><div class="idx">III</div><div class="body"><h3>Pull the kill switch</h3><p>Revoke the session; the next call is blocked on-chain. That is the worm defense — bounded and revocable.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 7 · DEPLOYMENT -->
+  <section>
+    <p class="kicker">Section VII</p>
+    <h2>On the record — live on Monad</h2>
+    <div class="sub-rule"></div>
+    <div class="deploy">
+      <div class="drow"><span class="l">AttestationRegistry <span class="muted">· authenticity oracle</span></span><a class="mono" href="https://testnet.monadexplorer.com/address/0x21f082a0b2343326108261cf918001565a0a1d92" target="_blank" rel="noreferrer">0x21f082…a0a1d92 ↗</a></div>
+      <div class="drow"><span class="l">PrepaidGateway <span class="muted">· secure access</span></span><a class="mono" href="https://testnet.monadexplorer.com/address/0x7ed90eb920d1345f48d65a8623bb4a8d6b73a6ec" target="_blank" rel="noreferrer">0x7ed90e…73a6ec ↗</a></div>
+      <div class="drow"><span class="l">Sample attestation transaction</span><a class="mono" href="https://testnet.monadexplorer.com/tx/0x3976314534c9c5e71daa92736f40fb4eb3d6dec3a3d31ca0154d707adb8de851" target="_blank" rel="noreferrer">0x397631…b8de851 ↗</a></div>
+      <div class="drow"><span class="l">Sample per-call debit transaction</span><a class="mono" href="https://testnet.monadexplorer.com/tx/0x079c3558f5322500323fb42c5e69f0741869b55c945368a1ba4550ef010a3e9d" target="_blank" rel="noreferrer">0x079c35…010a3e9d ↗</a></div>
+    </div>
+    <p class="caption">Validated live against a real LiteLLM proxy fronting Anthropic, Azure-OpenAI and Moonshot. Built with Next.js, viem and solc.</p>
+  </section>
+
+  <footer>
+    <span>The ProofOfModel</span>
+    <span>Monad Blitz Pune · Vol. II</span>
+  </footer>
+
+</div>
