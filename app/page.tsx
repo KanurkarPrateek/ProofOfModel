@@ -53,6 +53,13 @@ export default function Home() {
 
   const v = result?.verdict;
   const chain = result?.chain;
+  const prov = result?.provenance;
+  const provColor =
+    prov?.verdict === "direct"
+      ? "var(--green)"
+      : prov?.verdict === "transit_station"
+      ? "var(--red)"
+      : "var(--yellow)";
 
   return (
     <div className="wrap">
@@ -194,6 +201,41 @@ export default function Home() {
               <b>{v.confidence}%</b>
             </div>
           </div>
+
+          {prov && (
+            <div
+              className="chainbox"
+              style={{ borderColor: provColor, marginBottom: 4 }}
+            >
+              <div style={{ color: provColor, fontWeight: 700 }}>
+                {prov.verdict === "direct"
+                  ? "🏛 Direct provider"
+                  : prov.verdict === "transit_station"
+                  ? "⚠ Transit station detected"
+                  : "◐ Intermediary endpoint"}
+                <span className="dim" style={{ fontWeight: 400 }}>
+                  {" "}
+                  — {prov.label}
+                </span>
+              </div>
+              <div className="dim" style={{ marginTop: 4 }}>
+                host <span className="mono">{prov.host}</span> ·{" "}
+                {prov.official ? "official domain" : "not an official domain"}
+                {prov.vendorsServed?.length > 0 && (
+                  <> · serves: {prov.vendorsServed.join(", ")}</>
+                )}
+              </div>
+              {prov.redFlags?.length > 0 && (
+                <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
+                  {prov.redFlags.map((f: string, i: number) => (
+                    <li key={i} className="dim" style={{ fontSize: 13 }}>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
 
           <div className="section-title">Probe evidence</div>
           <table>

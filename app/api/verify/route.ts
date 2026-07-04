@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fingerprint } from "@/lib/fingerprint";
+import { inspectProvenance } from "@/lib/provenance";
 import {
   publicClient,
   relayerWallet,
@@ -22,15 +23,16 @@ export async function POST(req: NextRequest) {
     ? `${req.nextUrl.origin}${endpoint}`
     : endpoint;
 
-  // 1) Fingerprint the endpoint.
+  // 1) Fingerprint the endpoint + inspect its provenance (in parallel).
   let verdict;
+  let provenance = null;
   try {
-    verdict = await fingerprint(
-      callBase,
-      apiKey || undefined,
-      claimedModel,
-      servedModel || undefined
-    );
+    const [v, p] = await Promise.all([
+      fingerprint(callBase, apiKey || undefined, claimedModel, servedModel || undefined),
+      inspectProvenance(callBase, apiKey || undefined, claimedModel).catch(() => null),
+    ]);
+    verdict = v;
+    provenance = p;
   } catch (err: any) {
     return NextResponse.json(
       { error: `verification failed: ${err.message}` },
@@ -78,5 +80,5 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ verdict, chain });
+  return NextResponse.json({ verdict, provenance, chain });
 }

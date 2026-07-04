@@ -1,0 +1,185 @@
+<style>
+  :root {
+    --paper: #f4f3ef; --paper-2: #eceae3; --ink: #191712; --ink-2: #3d3a32;
+    --muted: #6c685e; --rule: #cbc7bb; --strong: #191712; --red: #9d1c1c;
+    --green: #2c6438; --amber: #9a6a08;
+    --serif: "Iowan Old Style", "Palatino Linotype", Georgia, "Times New Roman", serif;
+    --head: Georgia, "Times New Roman", serif;
+    --sans: "Helvetica Neue", Arial, system-ui, sans-serif;
+    --mono: ui-monospace, Menlo, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--serif); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .paper { max-width: 900px; margin: 0 auto; padding: 34px 22px 90px; }
+
+  .nameplate { text-align: center; border-bottom: 2px solid var(--strong); padding-bottom: 12px; }
+  .nameplate .motto { font-family: var(--sans); font-size: 12px; letter-spacing: .32em; text-transform: uppercase; color: var(--muted); }
+  .nameplate .title { font-family: var(--head); font-weight: 700; letter-spacing: -.02em; font-size: clamp(30px, 6.5vw, 52px); line-height: 1.03; margin: 6px 0 8px; }
+  .dateline { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-family: var(--sans); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); padding: 7px 2px; border-bottom: 1px solid var(--strong); margin-bottom: 34px; }
+
+  figure { margin: 0 0 44px; border: 1px solid var(--strong); background: var(--paper); }
+  figcaption { border-bottom: 1px solid var(--rule); padding: 12px 18px; }
+  .figlabel { font-family: var(--sans); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--red); }
+  .figtitle { font-family: var(--head); font-size: clamp(19px, 3vw, 24px); font-weight: 700; margin: 3px 0 0; letter-spacing: -.01em; }
+  .canvas { padding: 26px 20px; }
+
+  /* flow */
+  .flow { display: flex; align-items: stretch; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .node { flex: 0 1 auto; min-width: 120px; max-width: 200px; border: 1.5px solid var(--strong); background: var(--paper-2); padding: 12px 14px; text-align: center; }
+  .node.hot { border-color: var(--red); background: #f8eaea; }
+  .node.safe { border-color: var(--green); background: #e9f1ea; }
+  .node .n-title { font-family: var(--head); font-weight: 700; font-size: 15px; line-height: 1.2; }
+  .node .n-sub { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 5px; line-height: 1.3; }
+  .node.hot .n-title { color: var(--red); }
+  .node.safe .n-title { color: var(--green); }
+
+  .arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 62px; color: var(--ink-2); }
+  .arrow .lbl { font-family: var(--sans); font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; text-align: center; line-height: 1.2; }
+  .arrow .line { font-size: 20px; line-height: 1; }
+  .arrow.bad .line { color: var(--red); }
+  @media (max-width: 640px) {
+    .flow { flex-direction: column; align-items: center; }
+    .node { max-width: 260px; width: 100%; }
+    .arrow .line { transform: rotate(90deg); }
+  }
+
+  /* feeder / skim annotations */
+  .annot { margin-top: 20px; display: grid; gap: 14px; }
+  .feeders { border-top: 1px dashed var(--rule); padding-top: 16px; }
+  .feeders .cap { font-family: var(--sans); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 10px; }
+  .feed-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  @media (max-width: 640px) { .feed-grid { grid-template-columns: 1fr 1fr; } }
+  .feed { border: 1px solid var(--rule); padding: 9px 8px; text-align: center; font-size: 12.5px; background: var(--paper-2); }
+  .feed b { display: block; font-family: var(--head); font-size: 13.5px; }
+  .feed span { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+  .callout-line { text-align: center; font-size: 14.5px; margin: 16px auto 0; max-width: 60ch; }
+  .callout-line.bad { color: var(--red); }
+  .tag { display: inline-block; font-family: var(--sans); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 2px 8px; border: 1px solid currentColor; border-radius: 2px; }
+  .tag.red { color: var(--red); } .tag.green { color: var(--green); } .tag.amber { color: var(--amber); }
+  .skim { border: 1px solid var(--red); background: #f8eaea; padding: 12px 14px; text-align: center; font-size: 14px; }
+  .skim .h { font-family: var(--sans); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--red); display: block; margin-bottom: 3px; }
+
+  figcaption.foot { border-bottom: 0; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); font-style: italic; }
+  .defense-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  @media (max-width: 640px) { .defense-grid { grid-template-columns: 1fr; } }
+  .def { padding: 18px 18px; }
+  .def + .def { border-left: 1px solid var(--rule); }
+  @media (max-width: 640px) { .def + .def { border-left: 0; border-top: 1px solid var(--rule); } }
+  .def h4 { font-family: var(--head); margin: 8px 0 6px; font-size: 16px; }
+  .def p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+  .cut { color: var(--green); font-weight: 700; }
+</style>
+
+<div class="paper">
+
+  <div class="nameplate">
+    <div class="motto">Field Guide · The Token Underworld</div>
+    <div class="title">How the Machine Works</div>
+  </div>
+  <div class="dateline">
+    <span>Two mechanisms, one black market</span>
+    <span>Fig. 1–3</span>
+  </div>
+
+  <!-- FIGURE 1: TRANSIT STATION -->
+  <figure>
+    <figcaption>
+      <div class="figlabel">Figure 1</div>
+      <div class="figtitle">Anatomy of a transit station (中转站)</div>
+    </figcaption>
+    <div class="canvas">
+      <div class="flow">
+        <div class="node">
+          <div class="n-title">You</div>
+          <div class="n-sub">blocked region · pays in RMB</div>
+        </div>
+        <div class="arrow"><span class="lbl">via VPN</span><span class="line">►</span></div>
+        <div class="node hot">
+          <div class="n-title">Transit station</div>
+          <div class="n-sub">中转站 · the reseller proxy</div>
+        </div>
+        <div class="arrow"><span class="lbl">real request</span><span class="line">►</span></div>
+        <div class="node">
+          <div class="n-title">Anthropic / OpenAI</div>
+          <div class="n-sub">the real provider</div>
+        </div>
+      </div>
+
+      <div class="callout-line bad">↩ returns a <b>cheaper model</b> than you paid for — you ask Opus, it serves Haiku / Kimi &nbsp;<span class="tag red">model swap</span></div>
+
+      <div class="annot">
+        <div class="feeders">
+          <div class="cap">↑ the station is fed by a fraud supply chain ↑</div>
+          <div class="feed-grid">
+            <div class="feed"><b>Stolen cards</b><span>free Max plans</span></div>
+            <div class="feed"><b>SMS / SIM farms</b><span>~$0.008 / number</span></div>
+            <div class="feed"><b>AI fake IDs</b><span>$15 · passes KYC</span></div>
+            <div class="feed"><b>Pooled accounts</b><span>shared Max limits</span></div>
+          </div>
+        </div>
+
+        <div class="skim">
+          <span class="h">↓ and it skims the real gold ↓</span>
+          Your prompts + the model's reasoning are logged and <b>resold to Chinese labs as training data</b> (distillation). The token discount is the loss-leader; your data is the product.
+        </div>
+      </div>
+    </div>
+    <figcaption class="foot">Modular by design: take down one SMS or ID supplier and the station keeps running. That's why the supply side is practically un-killable.</figcaption>
+  </figure>
+
+  <!-- FIGURE 2: WORM -->
+  <figure>
+    <figcaption>
+      <div class="figlabel">Figure 2</div>
+      <div class="figtitle">How a worm steals your tokens</div>
+    </figcaption>
+    <div class="canvas">
+      <div class="flow">
+        <div class="node hot">
+          <div class="n-title">Malicious package</div>
+          <div class="n-sub">npm / PyPI · Shai-Hulud</div>
+        </div>
+        <div class="arrow"><span class="lbl">you install</span><span class="line">►</span></div>
+        <div class="node">
+          <div class="n-title">Your laptop</div>
+          <div class="n-sub">unlimited API key in ~/.claude</div>
+        </div>
+        <div class="arrow bad"><span class="lbl">spawns hidden sessions</span><span class="line">►</span></div>
+        <div class="node hot">
+          <div class="n-title">Transit station</div>
+          <div class="n-sub">routes the stolen tokens</div>
+        </div>
+        <div class="arrow"><span class="line">►</span></div>
+        <div class="node">
+          <div class="n-title">Provider</div>
+          <div class="n-sub">bills your account</div>
+        </div>
+      </div>
+      <div class="callout-line bad">The worm sips your quota a little at a time to stay invisible. All <b>you</b> see is <span class="tag red">weekly limit hit</span> — millions of hidden requests a day, on machines whose owners have no idea.</div>
+    </div>
+    <figcaption class="foot">Root cause: an unlimited, long-lived bearer credential sitting on a machine the malware now controls.</figcaption>
+  </figure>
+
+  <!-- FIGURE 3: DEFENSE -->
+  <figure>
+    <figcaption>
+      <div class="figlabel">Figure 3</div>
+      <div class="figtitle">Where ProofOfModel cuts each loop</div>
+    </figcaption>
+    <div class="defense-grid">
+      <div class="def">
+        <span class="tag green">cuts Figure 1</span>
+        <h4>Local trust proxy</h4>
+        <p>Sits between you and the station. Fingerprints the endpoint + checks its on-chain reputation before trusting it — and <span class="cut">blocks the model swap</span> before your request ever leaves the laptop. Also flags "this is a transit station, not the provider."</p>
+      </div>
+      <div class="def">
+        <span class="tag green">cuts Figure 2</span>
+        <h4>Prepaid Gateway (on Monad)</h4>
+        <p>The real key lives off your machine, so the worm can't steal it. All it finds is a <span class="cut">capped, expiring, revocable</span> session — every use is an on-chain debit you can see. Theft becomes bounded and visible, not silent and unlimited.</p>
+      </div>
+    </div>
+    <figcaption class="foot">We don't stop malware from landing — we remove the unlimited credential it came for, and make the fake model impossible to hide.</figcaption>
+  </figure>
+
+</div>
