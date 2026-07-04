@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
           abi: ATTESTATION_ABI,
           functionName: "getEndpoint",
           args: [endpoint],
-        })) as any[];
+        })) as unknown as any[];
 
       chain.simulated = false;
       chain.txHash = txHash;

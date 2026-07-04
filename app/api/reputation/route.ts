@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
         abi: ATTESTATION_ABI,
         functionName: "getEndpoint",
         args: [endpoint],
-      })) as any[];
+      })) as unknown as any[];
     return NextResponse.json({
       deployed: true,
       endpoint,

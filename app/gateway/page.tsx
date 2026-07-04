@@ -81,12 +81,12 @@ export default function Gateway() {
         abi: GATEWAY_ABI,
         functionName: "sessionOf",
         args: [session.address],
-      })) as any[];
+      })) as unknown as any[];
       setSessionState({
         user: s[0],
         cap: formatEther(s[1]),
         spent: formatEther(s[2]),
-        remaining: formatEther(s[1] - s[2]),
+        remaining: formatEther((s[1] as bigint) - (s[2] as bigint)),
         expiry: Number(s[3]),
         revoked: s[4],
         userBalance: formatEther(s[5]),

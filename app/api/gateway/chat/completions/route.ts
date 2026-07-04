@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       abi: GATEWAY_ABI,
       functionName: "sessionOf",
       args: [sessionKey],
-    })) as [string, bigint, bigint, bigint, boolean, bigint];
+    })) as unknown as [string, bigint, bigint, bigint, boolean, bigint];
 
     if (user === "0x0000000000000000000000000000000000000000")
       return NextResponse.json({ error: "no such session on-chain" }, { status: 402 });
